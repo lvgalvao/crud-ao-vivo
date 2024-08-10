@@ -5,12 +5,22 @@ terraform {
       version = "=3.0.0"
     }
   }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
 }
 
 provider "azurerm" {
   features {}
 }
 
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+}
 # Resource Group
 resource "azurerm_resource_group" "example" {
   name     = var.resource_group_name

@@ -16,7 +16,7 @@ sudo systemctl start docker
 sudo systemctl enable docker
 
 # Clonar o repositório
-sudo git clone https://github.com/lvgalvao/crud /home/ubuntu/crud
+sudo git clone https://github.com/lvgalvao/crud-ao-vivo /home/ubuntu/crud
 
 # Mudar para o diretório do repositório
 cd /home/ubuntu/crud
