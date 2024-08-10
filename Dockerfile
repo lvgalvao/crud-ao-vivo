@@ -1,18 +1,24 @@
-FROM python:3.12
+FROM python:3.12.3-slim-bullseye
 
-# Instalando o Poetry
-RUN pip install sqlalchemy fastapi uvicorn psycopg2-binary 
+WORKDIR /app
 
-# Copiar o conteúdo do diretório atual para o contêiner
-COPY . .
+COPY requirements.txt .
 
-# Definir o diretório de trabalho
-WORKDIR /src
+RUN pip install -r requirements.txt
 
-# Instalar as dependências do projeto com Poetry
+RUN apt-get update && apt-get install -y \
+    unixodbc \
+    unixodbc-dev \
+    curl \
+    gnupg \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | tee /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Expor a porta em que a aplicação estará escutando
-EXPOSE 8501
+COPY /src .
 
-# Definir o entrypoint para executar o servidor Uvicorn
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8501"]
+EXPOSE 80
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

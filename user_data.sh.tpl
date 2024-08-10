@@ -1,22 +1,32 @@
 #!/bin/bash
-sudo dnf update -y
-sudo dnf install git -y
-git clone https://github.com/lvgalvao/fastapi-deploy-ec2 /home/ec2-user/fastapi-deploy-ec2
-sudo dnf install docker -y
+# Atualizar os pacotes do sistema
+sudo apt update -y
+
+# Instalar o Git e o Docker
+sudo apt install git docker.io -y
+
+# Iniciar e habilitar o Docker
+sudo usermod -aG docker adminuser
+
+# Adicionar o usuário ao grupo Docker
+sudo reboot
+
+# (Opcional) Após reiniciar a sessão, verifique o status do Docker e inicie/habilite o serviço se necessário
 sudo systemctl start docker
 sudo systemctl enable docker
-sudo usermod -aG docker ec2-user
-cd /home/ec2-user/fastapi-deploy-ec2
 
-# Configurar a variável de ambiente para o banco de dados usando o output do Terraform
-export DATABASE_URL="postgresql://${db_username}:${db_password}@${db_address}:5432/${db_name}"
+# Clonar o repositório
+sudo git clone https://github.com/lvgalvao/crud /home/ubuntu/crud
+
+# Mudar para o diretório do repositório
+cd /home/ubuntu/crud
 
 # Construir a imagem Docker
-docker build -t fastapi-app .
+sudo docker build -t fastapi-app .
+
+# Configurar variáveis de ambiente para o banco de dados
+export DATABASE_URL="mssql+pyodbc://${db_username}:${db_password}@${db_address}:1433/example-db?driver=ODBC+Driver+17+for+SQL+Server"
 
 # Executar o contêiner Docker com a variável de ambiente configurada
-docker run -p 80:80 \
-  -e DB_USER="${db_username}" \
-  -e DB_PASSWORD="${db_password}" \
-  -e DB_HOST="${db_address}" \
-  -e DB_NAME="${db_name}"  fastapi-app
+sudo docker run -p 80:80 \
+  -e DATABASE_URL="mssql+pyodbc://${db_username}:${db_password}@${db_address}:1433/example-db?driver=ODBC+Driver+17+for+SQL+Server" fastapi-app
